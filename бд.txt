@@ -1,0 +1,137 @@
+CREATE DATABASE RepairBD;
+GO
+
+
+USE RepairBD;
+GO
+-- Таблица ролей пользователей
+CREATE TABLE Roles (
+    roleID INT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL
+);
+-- Таблица статусов заявок
+CREATE TABLE Statuses (
+    statusID INT PRIMARY KEY,
+    statusName VARCHAR(100) NOT NULL
+);
+
+-- Таблица частей, которые используются для ремонта
+CREATE TABLE RepairParts (
+    partID INT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL
+);
+
+-- Таблица оборудования (организационная техника)
+CREATE TABLE OrgTech (
+    orgTechID INT PRIMARY KEY,
+    orgTechType VARCHAR(100) NOT NULL,
+    orgTechModel VARCHAR(100) NOT NULL
+);
+
+-- Таблица пользователей
+CREATE TABLE Users (
+    userID INT PRIMARY KEY,
+    firstname VARCHAR(100) NOT NULL,
+    secondname VARCHAR(100) NOT NULL,
+    thirdname VARCHAR(100) NOT NULL,
+    phone VARCHAR(15) NOT NULL,
+    login VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(50) NOT NULL,
+    roleID INT,
+    FOREIGN KEY (roleID) REFERENCES Roles(roleID)
+);
+
+
+
+-- Таблица заявок на ремонт
+CREATE TABLE Requests (
+    requestID INT PRIMARY KEY,
+    startDate DATE NOT NULL,
+    orgTechID INT,
+    problemDescription VARCHAR(255) NOT NULL,
+    statusID INT,
+    completionDate DATE,
+    partID INT,
+    masterID INT,
+    clientID INT,
+    FOREIGN KEY (orgTechID) REFERENCES OrgTech(orgTechID),
+    FOREIGN KEY (statusID) REFERENCES Statuses(statusID),
+    FOREIGN KEY (partID) REFERENCES RepairParts(partID),
+    FOREIGN KEY (masterID) REFERENCES Users(userID),
+    FOREIGN KEY (clientID) REFERENCES Users(userID)
+);
+
+-- Таблица комментариев по заявкам
+CREATE TABLE Comments (
+    commentID INT PRIMARY KEY,
+    message TEXT NOT NULL,
+    masterID INT,
+    requestID INT,
+    FOREIGN KEY (masterID) REFERENCES Users(userID),
+    FOREIGN KEY (requestID) REFERENCES Requests(requestID)
+);
+
+
+
+-- Вставка данных в таблицу Statuses
+INSERT INTO Statuses (statusID, statusName)
+VALUES 
+(1, 'В процессе ремонта'),
+(2, 'Новая заявка'),
+(3, 'Завершена');
+
+-- Вставка данных в таблицу RepairParts
+INSERT INTO RepairParts (partID, name)
+VALUES 
+(1, 'Блок питания'),
+(2, 'Материнская плата'),
+(3, 'Оперативная память'),
+(4, 'Жесткий диск'),
+(5, 'Видеокарта');
+
+-- Вставка данных в таблицу OrgTech
+INSERT INTO OrgTech (orgTechID, orgTechType, orgTechModel)
+VALUES
+(1, 'Компьютер', 'DEXP Aquilon O286'),
+(2, 'Компьютер', 'DEXP Atlas H388'),
+(3, 'Ноутбук', 'MSI GF76 Katana 11UC-879XRU'),
+(4, 'Ноутбук', 'MSI GF76 Katana 11UC-879XRU'),
+(5, 'Принтер', 'HP LaserJet Pro M404dn');
+
+-- Вставка данных в таблицу Roles
+INSERT INTO Roles (roleID, name)
+VALUES 
+(1, 'Менеджер'),
+(2, 'Мастер'),
+(3, 'Оператор'),
+(4, 'Заказчик');
+
+-- Вставка данных в таблицу Users
+INSERT INTO Users (userID, firstname, secondname, thirdname, phone, login, password, roleID)
+VALUES
+(1, 'Носов', 'Иван', 'Михайлович', '89210563128', 'login1', 'pass1', 1),
+(2, 'Ильин', 'Александр', 'Андреевич', '89535078985', 'login2', 'pass2', 2),
+(3, 'Никифоров', 'Иван', 'Дмитриевич', '89210673849', 'login3', 'pass3', 2),
+(4, 'Елисеев', 'Артём', 'Леонидович', '89990563748', 'login4', 'pass4', 3),
+(5, 'Титов', 'Сергей', 'Кириллович', '89994563847', 'login5', 'pass5', 3),
+(6, 'Григорьев', 'Семён', 'Викторович', '89219567849', 'login11', 'pass11', 4),
+(7, 'Сорокин', 'Дмитрий', 'Ильич', '89219567841', 'login12', 'pass12', 4),
+(8, 'Белоусов', 'Егор', 'Ярославович', '89219567842', 'login13', 'pass13', 4),
+(9, 'Суслов', 'Михаил', 'Александрович', '89219567843', 'login14', 'pass14', 4),
+(10, 'Васильев', 'Вячеслав', 'Александрович', '89219567844', 'login15', 'pass15', 2);
+
+-- Вставка данных в таблицу Requests
+INSERT INTO Requests (requestID, startDate, orgTechID, problemDescription, statusID, completionDate, partID, masterID, clientID)
+VALUES
+(1, '2023-06-06', 1, 'Перестал работать', 1, '2023-07-07', 1, 2, 7),
+(2, '2023-06-07', 2, 'Перестал работать', 1, '2023-07-08', 2, 3, 1),
+(3, '2023-06-08', 3, 'Выключается', 3, '2023-07-09', 3, 4, 3),
+(4, '2023-06-09', 4, 'Выключается', 2, '2023-07-10', 4, 5, 2),
+(5, '2023-06-10', 5, 'Перестал включаться', 3, '2023-07-11', 5, 6, 4);
+
+-- Вставка данных в таблицу Comments
+INSERT INTO Comments (commentID, message, masterID, requestID)
+VALUES
+(1, 'Интересно…', 2, 1),
+(2, 'Будем разбираться!', 3, 2),
+(3, 'Сделаем все на высшем уровне!', 3, 3);
